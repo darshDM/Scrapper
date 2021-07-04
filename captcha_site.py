@@ -4,11 +4,10 @@ from bs4 import BeautifulSoup
 import requests
 import bs4
 import datetime
-import urllib.request
 import pandas as pd
 import pytesseract
 from pytesseract import image_to_string 
-from PIL import Image, ImageOps, ImageEnhance
+from PIL import Image
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
@@ -18,9 +17,13 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import cv2 
-from http_request_randomizer.requests.proxy.requestProxy import RequestProxy
 from CaptchaRecognition import get_string
 from multiprocessing import Process
+def getTime():
+    now = datetime.now()
+
+    current_time = now.strftime("%H:%M:%S")
+    print("Current Time =", current_time)
 
 
 # get captcha text from screenshot
@@ -148,6 +151,7 @@ def login_to_website(state,FromDate,ToDate,url,sema):
 
     
 def allStates():
+    
     driver = webdriver.Chrome(executable_path = "D:/Internship/chromedriver.exe")
     driver.get("https://services.ecourts.gov.in/ecourtindiaHC/")
     
@@ -180,20 +184,21 @@ def allStates():
     current_date = datetime.datetime.now()
 
     sema = multiprocessing.Semaphore(multiprocessing.cpu_count()-1)
-    login_to_website(stateName[0],current_date.strftime("%d-%m-%Y"),current_date.strftime("%d-%m-%Y"),byDate[0],sema)
-
+    
     # Multiprocessing
-    # processes = []
-    # sema = multiprocessing.Semaphore(multiprocessing.cpu_count()-1)
-    # for i in range(len(byDate)):
-    #     p = Process(target=login_to_website,args=(stateName[i],"30-6-2021","30-6-2021",byDate[i],sema))
-    #     processes.append(p)
-    #     p.start()
+    processes = []
+    sema = multiprocessing.Semaphore(multiprocessing.cpu_count()-1)
+    for i in range(len(byDate)):
+        p = Process(target=login_to_website,args=(stateName[i],"30-6-2021","30-6-2021",byDate[i],sema))
+        processes.append(p)
+        p.start()
 
-    # for p in processes:
-    #     p.join()
+    for p in processes:
+        p.join()
     
 
 if __name__ == '__main__':
+    getTime()
     allStates()
+    getTime()
     
